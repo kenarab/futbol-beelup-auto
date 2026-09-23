@@ -274,6 +274,8 @@ def dewarp(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest='command', required=True)
+    from .doctor import add_command
+    add_command(commands)
     command = commands.add_parser('download')
     command.add_argument('url')
     command.add_argument('--output', default=None)
@@ -313,6 +315,8 @@ def main():
     add_commands(commands)
     args = parser.parse_args()
     try:
+        if args.command == 'doctor':
+            parser.exit(args.function(args))
         prepare_storage()
         if args.command == 'download' and args.output is None:
             args.output = 'matches/' + hashlib.sha256(playlist_url(args.url, args.camera).encode()).hexdigest()[:16]

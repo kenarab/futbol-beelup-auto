@@ -58,6 +58,18 @@ Dependencies are bounded rather than locked across platforms; freeze a validated
 GPU environment after the first hardware pilot. No GPU dependencies were installed
 into this Mac's system Python.
 
+## Check this machine
+
+```sh
+futbol doctor --json
+futbol doctor --smoke --weights models/ball-detector.pt
+```
+
+Diagnostics run even when storage or optional GPU packages are missing. Exit code
+1 means at least one full-pipeline prerequisite is missing; individual commands
+may still work. `--smoke` performs an actual PyTorch CUDA matrix multiplication.
+Checking weights confirms file existence, not detector accuracy or compatibility.
+
 ## External data root
 
 Choose an existing folder on the mounted drive, then:
