@@ -225,6 +225,20 @@ def analyze(args):
     (output / 'summary.md').write_text('\n'.join(lines) + '\n')
 
 
+def summarize(args):
+    """Analyze/checkpoint windows and render selected candidates in one command."""
+    output = Path(args.output)
+    reel = output / 'highlights.mp4'
+    if reel.exists():
+        raise ValueError('Highlight reel already exists; choose a new output directory or use analyze to resume analysis.')
+    analyze(args)
+    manifest = output / 'highlights.json'
+    if not json.loads(manifest.read_text())['clips']:
+        print(f'No candidates met the threshold; review {output / "summary.md"}.')
+        return
+    render(argparse.Namespace(manifest=str(manifest), video=args.video, output=str(reel)))
+
+
 def render(args):
     manifest = json.loads(Path(args.manifest).read_text())
     video = Path(args.video or manifest['video']).resolve()
@@ -281,7 +295,8 @@ def main():
     command.add_argument('--output', default=None)
     command.add_argument('--camera', default=None)
     command.set_defaults(function=download)
-    command = commands.add_parser('analyze')
+    command = commands.add_parser('analyze', aliases=['summarize'],
+                                  help='Analyze match windows; summarize also renders a candidate reel')
     command.add_argument('video')
     command.add_argument('--output', default='outputs/analysis')
     command.add_argument('--ollama', default='http://127.0.0.1:11434')
@@ -314,6 +329,8 @@ def main():
     from .postprocess import add_commands
     add_commands(commands)
     args = parser.parse_args()
+    if args.command == 'summarize':
+        args.function = summarize
     try:
         if args.command == 'doctor':
             parser.exit(args.function(args))

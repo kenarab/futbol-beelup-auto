@@ -170,6 +170,35 @@ futbol render outputs/35379808/analysis/highlights.json --output outputs/3537980
 `--video` overrides a saved source path after moving between machines. Actual
 highlight quality and GPU performance still need validation on the Ubuntu box.
 
+## Automatic match recap
+
+```sh
+futbol summarize matches/35379808/match.mp4 --output outputs/35379808/recap --limit 5
+```
+
+This runs the existing frame analysis and creates `windows.json`, `highlights.json`,
+`summary.md`, and (when candidates qualify) `highlights.mp4` in one command. Omit
+`--limit` for the full match. The written summary describes candidate events, not a
+verified scoreline. No qualifying events means no reel is generated.
+
+Interrupted analysis resumes completed windows with the same video/model/settings.
+An existing reel is protected from overwrite: use `analyze` to extend a pilot's
+analysis, then `render` with a fresh output filename, or choose a new directory.
+Rendering itself is not checkpointed.
+
+The starting model is [Qwen3-VL 4B](https://ollama.com/library/qwen3-vl), a local
+vision-language model. It requires a newer Ollama than this host's initial 0.5.7.
+For this implementation, sampled frames provide evidence for candidate events;
+small or obscured balls and fast actions can be missed. A later version can combine
+ball tracking and denser temporal analysis with these proposals. Soccer-specific
+[action spotting](https://www.soccer-net.org/tasks/action-spotting) is another
+research direction, but broadcast-footage results need validation on this fisheye
+amateur footage before adopting a model.
+
+CUDA accelerates NVIDIA model inference. Ollama manages its own inference runtime;
+YOLO tracking uses CUDA-enabled PyTorch. Downloading and the current FFmpeg exports
+do not require CUDA. We use prebuilt runtimes and do not need custom CUDA kernels.
+
 ## Fisheye correction, then ball-following
 
 Start with a short dewarped clip retaining both goals:
