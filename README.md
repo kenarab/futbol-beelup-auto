@@ -2,8 +2,9 @@
 
 Python package for archiving football matches, proposing highlights with a local
 vision model, dewarping fisheye video, and testing ball-following exports.
-Development is on this Mac. The initial GPU target is **Ubuntu, RTX 3060, 12 GB VRAM**;
-storage, detector and compute device remain configurable.
+The current development host has an **RTX 3060, 12 GB VRAM** available;
+storage, detector and compute device remain configurable. See the
+[GPU development roadmap](ROADMAP.md) for validation milestones and next steps.
 
 ## Standard project layout
 
@@ -132,11 +133,15 @@ Missing files fail the command. Combined duration is checked against the playlis
 Partial-match URLs whose original-file boundaries differ may fail this check;
 this POC prioritizes full matches. Downloads require a still-accessible source.
 
-The rescued match remains at `data/35379808/match.mp4` in this checkout: **75:02,
+The previous development environment recorded a rescued match at
+`data/35379808/match.mp4`: **75:02,
 1024×1024, with audio**, alongside all 15 originals and SHA-256 checksums in
 `preservation.json`. This is the highest quality exposed by the inspected page and
 playlist. Full decode verification passed. Copy and verify the archive on the
-external drive before removing the local copy. No migration has yet been performed.
+external drive before removing the local copy. On the GPU host, the script has
+now downloaded a fresh copy to the configured data root. All 15 originals and the combined match have SHA-256 records in
+`preservation.json`; full combined video/audio decode verification passed. The
+other computer's copy has not been migrated or compared byte-for-byte.
 
 Optional full verification:
 
@@ -188,6 +193,8 @@ Rendering itself is not checkpointed.
 
 The starting model is [Qwen3-VL 4B](https://ollama.com/library/qwen3-vl), a local
 vision-language model. It requires a newer Ollama than this host's initial 0.5.7.
+An isolated runtime and model are now available; see the
+[paused session checkpoint](ROADMAP.md#pause-checkpoint--2026-09-23) for restart commands.
 For this implementation, sampled frames provide evidence for candidate events;
 small or obscured balls and fast actions can be missed. A later version can combine
 ball tracking and denser temporal analysis with these proposals. Soccer-specific
